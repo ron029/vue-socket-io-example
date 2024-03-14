@@ -5,7 +5,8 @@
       <template v-for="(item, index) in clientList">
         <v-list-tile v-if="$socket.id !== item" :key="item" avatar @click="clickedOnClient(item)">
           <v-list-tile-avatar>
-            <img src="http://placekitten.com/50/50">
+            [dp]
+            <!-- <img src="http://placekitten.com/50/50"> -->
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title v-html="item"></v-list-tile-title>
