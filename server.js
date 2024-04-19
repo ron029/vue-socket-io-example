@@ -11,44 +11,57 @@ app.use((req, res, next) => {
   next();
 })
 
-let users = [];
-let oppans = [];
+let oppans = [
+  {
+    oppa: "K-0000000398",
+    status: "pending"
+  },
+  {
+    oppa:  "K-0000000399",
+    status: "pending"
+  }
+];
 let room_admins = 1;
 
-app.get('/login', (req, res) => {
-  let data = {
-    role: req.body.ROLE,
-    username: req.body.USERNAME,
-    user_id: req.body.USER_ID
-  }
-  users.push(data);
-});
+// app.get('/login', (req, res) => {
+//   let data = {
+//     role: req.body.ROLE,
+//     username: req.body.USERNAME,
+//     user_id: req.body.USER_ID
+//   }
+//   users.push(data);
+// });
 
-app.get('/oppan/new', (req, res) => {
-  let data = {
-    role: req.body.ROLE,
-    username: req.body.USERNAME,
-    user_id: req.body.USER_ID,
-    oppa_number: req.body.OPPA
-  }
-  oppans.push(data);
-});
-
-app.get('/clients', (req, res) => {
-  res.send(Object.keys(io.sockets.clients().connected))
-});
+// app.get('/oppan/new', (req, res) => {
+//   let data = {
+//     role: req.body.ROLE,
+//     username: req.body.USERNAME,
+//     user_id: req.body.USER_ID,
+//     oppa_number: req.body.OPPA
+//   }
+// });
 
 io.on('connection', socket => {
   console.log(`A user connected with socket id ${socket.id}`);
-
-  socket.on('new_appa', () => {
-    socket.broadcast.to(room_admins).emit('get_oppa', oppans);
-  });
-
   socket.on('user-connected', data => {
+    console.log('user: ', data);
     if (data.role === 'admin') {
       socket.join(room_admins);
+      console.log('admin connected to room number: ', room_admins)
+      // socket.emit('oppa_list', oppans);
+      // socket.emit('OPPA_LIST', oppans);
+      // socket.broadcast.to(room_admins).emit('oppa_list', oppans);
+      io.to(socket.id).emit('oppa_list', oppans);
+    } else {
+      console.log('new patient has been connected.')
     }
+  });
+
+  socket.on('new_oppa', data => {
+    oppans.push(data);
+    socket.to(room_admins).emit("oppa_list", oppans);
+    // io.to(socket.id).emit('oppa_list', oppans);
+    // socket.broadcast.to(room_admins).emit('oppa_list');
   });
 })
 
